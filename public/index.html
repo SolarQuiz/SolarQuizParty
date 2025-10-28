@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solar Quiz</title>
+<link rel="stylesheet" href="styleSheets/styleSheet.css" />
+</head>
+<body>
+  <noscript>
+    <style>
+      .no-js-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: black;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        font-size: 1.5rem;
+        text-align: center;
+        padding: 1rem;
+      }
+      
+      @keyframes fadeInOut {
+        0% { opacity: 0; transform: scale(0.8); }
+        20% { opacity: 1; transform: scale(1); }
+        80% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.8); }
+      }
+    </style>
+    <div class="no-js-overlay">
+      Este site requer JavaScript para funcionar corretamente. Por favor, habilite o JavaScript no seu navegador.
+    </div>
+  </noscript>
+  <div class="star"></div>
+  <div class="container">
+    <img src="assets/img/solarQuizAW.png" alt="Logo" class="logo" />
+
+    <section id="menu">
+      <h1>Jogue contra seus amigos e compare seus resultados!</h1>
+      <button class="menu-button" id="join-btn">Entrar numa Sala</button>
+      <button class="menu-button" id="create-btn">Criar uma sala</button>
+      <button class="menu-button" id="about-btn">Sobre</button>
+    </section>
+
+    <section id="join-room-section" style="display:none; text-align:center; margin: 2rem 0;">
+      <h2>Entrar em uma Sala</h2>
+
+      <input type="text" id="input-room-code" class="join-input" placeholder="Código da sala" maxlength="6" style="text-transform: uppercase;" />
+      <input type="text" id="input-player-name" class="join-input" placeholder="Seu nome" maxlength="20" />
+
+      <button id="join-room-btn" class="joinBtn">Entrar</button>
+      <button id="back-to-menu-from-join" class="joinBtn">Voltar ao Menu</button>
+
+      <p id="join-error-msg" style="color:red; display:none;"></p>
+    </section>
+
+    <section id="room-code-section" style="display:none; text-align:center; margin: 2rem 0;">
+      <h1 id="cds" style="display:none;">Código de sala:</h1>
+      <h2 id="room-code" style="display:none;">---</h2>
+
+      <div id="room-creator-info" style="margin: 1rem 0;">
+        <input type="text" id="creator-player-name" class="join-input" placeholder="Seu nome" maxlength="20" />
+        <input type="number" id="creator-max-players" class="join-input" placeholder="Número máximo de jogadores" min="2" max="20" value="4" />
+        <select id="creator-num-questions" class="join-input" title="Número de questões" style="background-color: black; color: white; border: 2px solid #ff6b35;">
+          <option value="10" style="background-color: black; color: white;">10 questões</option>
+          <option value="20" style="background-color: black; color: white;">20 questões</option>
+          <option value="30" style="background-color: black; color: white;">30 questões</option>
+          <option value="40" style="background-color: black; color: white;">40 questões</option>
+          <option value="50" style="background-color: black; color: white;">50 questões</option>
+          <option value="60" style="background-color: black; color: white;">60 questões</option>
+          <option value="70" style="background-color: black; color: white;">70 questões</option>
+          <option value="80" style="background-color: black; color: white;">80 questões</option>
+          <option value="90" style="background-color: black; color: white;">90 questões</option>
+          <option value="100" style="background-color: black; color: white;">100 questões</option>
+        </select>
+        <button id="confirm-creator-btn" type="button" class="menu-button">Confirmar</button>
+        <p id="creator-error-msg" style="color:red; display:none;"></p>
+      </div>
+
+      <section id="players-list-section-1" style="display:none; margin: 2rem 0; text-align:center;">
+        <h2 id="h21" style="display:none;">Jogadores na sala:</h2>
+        <ul id="players-list-1"></ul>
+      </section>
+
+      <button class="menu-button" id="startQuestions" style="display:none;">Começar</button>
+    </section>
+
+    <section id="debug-menu" style="display:none; margin: 2rem 0; text-align:center;">
+      <h2 id="questionNum" class="question-title"></h2>
+      <ul id="playerInfo" style="list-style:none; padding-left:0;"></ul>
+    </section>
+
+    <section id="room-code-section-WS" style="display:none; text-align:center; margin: 2rem 0;">
+      <section id="players-list-section-2" style="margin: 2rem 0; text-align:center;">
+        <h2>Jogadores na sala:</h2>
+        <ul id="players-list-2"></ul>
+      </section>
+      <div id="starting-countdown" style="display:none; color: orange; font-size: 24px; text-align: center; margin-top: 20px;">
+        Começando em... <span id="countdown-timer">15</span>
+      </div>
+    </section>
+
+    <section id="quiz-container">
+      <div id="quiz-header">
+        <span><span id="current-question">1</span> / <span id="total-questions"></span></span>
+        <span id="timer">30s</span>
+      </div>
+      <div id="question-container"></div>
+      <div id="options-container"></div>
+      <div id="fun-fact" style="display:none;"></div>
+      <div class="quiz-actions">
+        <b><span class="skip">Pular Questão</span></b>
+      </div>
+    </section>
+
+    <section id="about" style="display:none; text-align:center; margin-top:2rem;">
+      <h2>Sobre SolarQuiz.</h2>
+      <p>SolarQuiz é um quiz simples para TODAS as idades (De preferência, para o Fundamental 2.), criado como um Trabalho na escola do criador. (A próposito, sou eu :D). <br><br>
+         Sendo assim, SolarQuiz é simples, intuitivo, é criado com o próposito de aprendizado, não espere muito muito dele.. <br><br>
+         Se você é um programador (como eu), você deveria dar uma olhada no Source Code (Codigo Fonte) desse jogo, você vai gostar. (Ou não, por que é extremamente mal programado) <br><br>
+         A redestribuição do binario desse jogo ou o codigo fonte do mesmo com fins lucrativos ou não, é expressamente proibido, assim que é permitido o fork do Codigo Fonte para sugestão de Pull-Requests ou do mesmo. <br><br>
+         <a href="https://github.com/SolarQuiz/SolarQuizParty/">Codigo Fonte</a></p>
+      <button class="menu-button" id="back-from-about">VOLTA AO MENU</button>
+    </section>
+
+    <section id="results-container">
+      <h1 class="finishQuiz" style="color: #ffffff">Quiz Finalizado!</h1>
+
+      <div id="podium-container" style="display: none; margin: 2rem 0;">
+        <h2 style="color: #ff6b35; margin-bottom: 1rem;">🏆 PÓDIO 🏆</h2>
+
+        <div id="first-place" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; padding: 1rem; margin: 0.5rem 0; border-radius: 10px; font-weight: bold; font-size: 1.2rem;">
+          🥇 1º Lugar: <span id="first-name">--</span> (<span id="first-score">--/--</span>)
+        </div>
+ 
+        <div id="second-place" style="background: linear-gradient(45deg, #C0C0C0, #A0A0A0); color: black; padding: 1rem; margin: 0.5rem 0; border-radius: 10px; font-weight: bold; font-size: 1.1rem;">
+          🥈 2º Lugar: <span id="second-name">--</span> (<span id="second-score">--/--</span>)
+        </div>
+  
+        <div id="third-place" style="background: linear-gradient(45deg, #CD7F32, #B8860B); color: black; padding: 1rem; margin: 0.5rem 0; border-radius: 10px; font-weight: bold; font-size: 1rem;">
+          🥉 3º Lugar: <span id="third-name">--</span> (<span id="third-score">--/--</span>)
+        </div>
+      </div>
+
+      <div id="other-players" style="display: none; margin: 2rem 0;">
+        <h3 style="color: #ff6b35; margin-bottom: 1rem;">Outros Jogadores</h3>
+        <ul id="other-players-list" style="list-style: none; padding: 0; text-align: left; max-width: 400px; margin: 0 auto;">
+        </ul>
+      </div>
+      
+      <div id="individual-score" style="display: none;">
+        <p>Sua pontuação: <b><span id="final-score"></span> / <span id="total-questions-results"></span></b></p>
+        <p id="result-message"></p>
+      </div>
+      
+      <button id="restart-btn">Voltar ao menu</button>
+    </section>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script src="javascriptFiles/nodeBackend/RoomHandler.js"></script>
+
+  <script src="javascriptFiles/ogJS/backgroundJS/stars.js"></script>
+
+  <script src="javascriptFiles/ogJS/logicBackend/timer.js"></script>
+  <script src="javascriptFiles/ogJS/logicBackend/question.js"></script>
+  <script src="javascriptFiles/ogJS/logicBackend/results.js"></script>
+  <script src="javascriptFiles/ogJS/logicBackend/Audio.js"></script>
+
+  <script src="javascriptFiles/ogJS/questions/questionsArray.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions10.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions20.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions30.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions40.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions50.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions60.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions70.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions80.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions90.js"></script>
+  <script src="javascriptFiles/ogJS/questions/questionsParsed/questions100.js"></script>
+
+  <script src="javascriptFiles/ogJS/variables.js"></script>
+  <script src="javascriptFiles/ogJS/menu.js"></script>
+  <script src="javascriptFiles/ogJS/eventListeners.js"></script>
+  <script src="javascriptFiles/ogJS/main.js"></script>
+</body>
+</html>
